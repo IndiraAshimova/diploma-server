@@ -18,6 +18,10 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/xp", xpRoutes);
 app.use("/api/streak", streakRoutes); 
 
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
+});
+
 app.listen(config.port, () => {
   console.log("Server running on port " + config.port);
 });
