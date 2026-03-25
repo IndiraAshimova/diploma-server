@@ -6,82 +6,61 @@ const streakService = require("./streakService");
 const emailService = require("./emailService");
 const config = require("../config/env");
 
-// Валидация email
 const isValidEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(String(email).toLowerCase());
 };
 
 const register = async (email, username, password) => {
-  // Проверка формата email
   if (!isValidEmail(email)) {
-    throw new Error("Некорректный формат email");
+    throw new Error("Invalid email format");
   }
-
   const existingUser = await userRepository.findByEmail(email);
-  if (existingUser) throw new Error("Пользователь с таким email уже существует");
-
+  if (existingUser) throw new Error("User with this email already exists");
   const hash = await bcrypt.hash(password, 10);
   const user = await userRepository.createUser(email, username, hash);
-
-  // Генерируем токен верификации
   const token = crypto.randomBytes(32).toString("hex");
   await userRepository.setVerificationToken(user.id, token);
-
-  // Отправляем письмо
   await emailService.sendVerificationEmail(email, token);
-
-  return { message: "Регистрация успешна. Проверьте почту для подтверждения." };
+  return { message: "Registration successful. Please check your email to confirm." };
 };
 
 const login = async (email, password) => {
   const user = await userRepository.findByEmail(email);
-  if (!user) throw new Error("Пользователь не найден");
-
-  // Проверяем подтверждён ли email
+  if (!user) throw new Error("User not found");
   if (!user.is_verified) {
-    throw new Error("Email не подтверждён. Проверьте вашу почту.");
+    throw new Error("Email not verified. Please check your inbox.");
   }
-
   const valid = await bcrypt.compare(password, user.password_hash);
-  if (!valid) throw new Error("Неверный пароль");
-
+  if (!valid) throw new Error("Invalid password");
   await streakService.updateStreak(user);
-
   const token = jwt.sign({ id: user.id }, config.jwtSecret, { expiresIn: "1h" });
   return token;
 };
 
 const verifyEmail = async (token) => {
   const user = await userRepository.findByVerificationToken(token);
-  if (!user) throw new Error("Неверный или устаревший токен");
-
+  if (!user) throw new Error("Invalid or expired token");
   await userRepository.verifyUser(user.id);
-  return { message: "Email успешно подтверждён. Теперь вы можете войти." };
+  return { message: "Email verified successfully. You can now log in." };
 };
 
 const forgotPassword = async (email) => {
   const user = await userRepository.findByEmail(email);
-  // Не сообщаем существует ли email — защита от перебора
-  if (!user) return { message: "Если email существует, письмо отправлено." };
-
+  if (!user) return { message: "If this email exists, a reset link has been sent." };
   const token = crypto.randomBytes(32).toString("hex");
-  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 час
-
+  const expires = new Date(Date.now() + 60 * 60 * 1000);
   await userRepository.setResetToken(user.id, token, expires);
   await emailService.sendPasswordResetEmail(email, token);
-
-  return { message: "Если email существует, письмо отправлено." };
+  return { message: "If this email exists, a reset link has been sent." };
 };
 
 const resetPassword = async (token, newPassword) => {
   const user = await userRepository.findByResetToken(token);
-  if (!user) throw new Error("Токен недействителен или истёк");
-
+  if (!user) throw new Error("Token is invalid or has expired");
   const hash = await bcrypt.hash(newPassword, 10);
   await userRepository.updatePassword(user.id, hash);
-
-  return { message: "Пароль успешно изменён." };
+  return { message: "Password changed successfully." };
 };
 
 module.exports = { register, login, verifyEmail, forgotPassword, resetPassword };
