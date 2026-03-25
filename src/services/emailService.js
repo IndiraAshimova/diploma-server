@@ -7,8 +7,8 @@ const sendVerificationEmail = async (email, token) => {
   const link = `${config.clientUrl}/api/auth/verify-email?token=${token}`;
 
   await resend.emails.send({
-    from: "noreply@твой-домен.com", // домен должен быть подтверждён в Resend
-    to: email,
+from: "onboarding@resend.dev",
+to: email,
     subject: "Подтвердите ваш email",
     html: `
       <h2>Добро пожаловать!</h2>
@@ -31,8 +31,8 @@ const sendPasswordResetEmail = async (email, token) => {
   const link = `${config.clientUrl}/api/auth/reset-password?token=${token}`;
 
   await resend.emails.send({
-    from: "noreply@твой-домен.com",
-    to: email,
+from: "onboarding@resend.dev",
+to: email,
     subject: "Сброс пароля",
     html: `
       <h2>Сброс пароля</h2>
