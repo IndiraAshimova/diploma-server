@@ -7,7 +7,7 @@ const sendVerificationEmail = async (email, token) => {
   const link = `${config.clientUrl}/api/auth/verify-email?token=${token}`;
 
   await resend.emails.send({
-from: "onboarding@resend.dev",
+from: "noreply@muraeduplatform.com",
 to: email,
     subject: "Email verification",
     html: `
@@ -31,7 +31,7 @@ const sendPasswordResetEmail = async (email, token) => {
   const link = `${config.clientUrl}/api/auth/reset-password?token=${token}`;
 
   await resend.emails.send({
-from: "onboarding@resend.dev",
+from: "noreply@muraeduplatform.com",
 to: email,
     subject: "Password Reset",
     html: `
