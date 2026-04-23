@@ -8,7 +8,7 @@ const sendVerificationEmail = async (email, token) => {
   const link = `${config.clientUrl}/api/auth/verify-email?token=${token}`;
 
   const result = await resend.emails.send({
-    from: "onboarding@resend.dev", // ?? важно для теста
+    from: "onboarding@resend.dev", // важно для теста
     to: email,
     subject: "Email verification",
     html: `
@@ -31,7 +31,7 @@ const sendVerificationEmail = async (email, token) => {
     `,
   });
 
-  console.log("?? VERIFY EMAIL RESULT:", result);
+  console.log("VERIFY EMAIL RESULT:", result);
 };
 
 // RESET PASSWORD
