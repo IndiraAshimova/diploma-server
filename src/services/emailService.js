@@ -1,5 +1,6 @@
 const { Resend } = require("resend");
 const config = require("../config/env");
+console.log("RESEND KEY:", config.resendApiKey);
 
 const resend = new Resend(config.resendApiKey);
 
