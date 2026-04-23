@@ -31,7 +31,7 @@ const sendPasswordResetEmail = async (email, token) => {
   const link = `${config.clientUrl}/api/auth/reset-password?token=${token}`;
 
   await resend.emails.send({
-from: "noreply@muraeduplatform.com",
+    from: "onboarding@resend.dev",
 to: email,
     subject: "Password Reset",
     html: `
