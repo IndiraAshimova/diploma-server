@@ -37,17 +37,17 @@ const register = async (email, username, password) => {
     throw new Error("User already exists");
   }
 
-  const hash = await bcrypt.hash(password, 10);
-  const token = crypto.randomBytes(32).toString("hex");
+const hash = await bcrypt.hash(password, 10);
+const token = crypto.randomBytes(32).toString("hex");
 
-  const user = await userRepository.createUser(
-    email,
-    username,
-    hash
-  );
+const user = await userRepository.createUser(
+  email,
+  username,
+  hash,
+  token
+);
 
-  await userRepository.setVerificationToken(user.id, token);
-  await emailService.sendVerificationEmail(email, token);
+await emailService.sendVerificationEmail(email, token);
 
   return {
     message: "Check your email to verify account"
