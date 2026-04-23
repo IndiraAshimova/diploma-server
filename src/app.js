@@ -12,6 +12,8 @@ const streakRoutes = require("./routes/streakRoutes");
 
 const config = require("./config/env");
 
+const startCleanupJob = require("./cron/cleanupCron");
+
 const app = express();
 
 app.use(cors());
@@ -28,6 +30,7 @@ app.get("/healthz", (req, res) => {
 
 const startServer = async () => {
   await migrate();
+  startCleanupJob();
 
   app.listen(config.port, () => {
     console.log("Server running on port " + config.port);
