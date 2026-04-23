@@ -16,6 +16,41 @@ const register = async (email, username, password) => {
     throw new Error("Invalid email format");
   }
 
+  const existingUser = await userRepository.findByEmail(email);
+
+  if (existingUser) {
+    if (!existingUser.is_verified) {
+      const token = crypto.randomBytes(32).toString("hex");
+
+      await userRepository.setVerificationToken(existingUser.id, token);
+      await emailService.sendVerificationEmail(email, token);
+
+      return {
+        message: "We sent you a new verification email"
+      };
+    }
+
+    throw new Error("User already exists");
+  }
+
+  const hash = await bcrypt.hash(password, 10);
+
+  const token = crypto.randomBytes(32).toString("hex");
+
+  const user = await userRepository.createUser(
+    email,
+    username,
+    hash,
+    token
+  );
+
+  await emailService.sendVerificationEmail(email, token);
+
+  return {
+    message: "Check your email to verify account"
+  };
+};
+
  const existingUser = await userRepository.findByEmail(email);
 
 if (existingUser) {
