@@ -24,10 +24,9 @@ const migrate = async () => {
     `);
 
     console.log("Миграция завершена!");
-
   } catch (err) {
     console.error("Ошибка миграции:", err.message);
   }
 };
 
-migrate();
+module.exports = migrate;
